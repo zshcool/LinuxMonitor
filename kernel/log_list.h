@@ -11,6 +11,8 @@ struct logblock
     struct log_item *items[MAX_ITEM];
 };
 
+
+
 //Initialize list head
 struct logblock * init_log_block(void);
 //insert node and return new node

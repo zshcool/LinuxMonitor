@@ -1,5 +1,7 @@
 #include "log_list.h"
 
+
+
 struct logblock * init_log_block()
 {
     int i;

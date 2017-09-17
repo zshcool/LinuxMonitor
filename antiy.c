@@ -8,11 +8,16 @@
 #include <sys/time.h>
 #include <poll.h>
 
+#define LOGSIZE 1024
+#define NAMESIZE 16
+
 struct log_item
 {
     int pid;
     int ppid;
-    char buf[1024];
+    char name[NAMESIZE];
+    char pname[NAMESIZE];
+    char buf[LOGSIZE];
 };
 
 int unblockfd(int fd)
@@ -91,69 +96,7 @@ void registry_out()
 
 
 
-int main1()
-{
-    int fd;
-    int ret;
-    int ready;
-    int read_size;
-    fd_set fdset;
-    struct timeval timeout;
-    
-    check_registry();
-    registry();
-
-    fd = open("/proc/antiylm/lmlog", O_RDONLY | O_NONBLOCK);
-    printf("%d\n", fd);
-    if(fd == -1)
-    {
-        printf("open failed,error:%d", errno);
-        return errno;
-    }
-/*
-    ret = unblockfd(fd);
-    if(ret == -1)
-    {
-        printf("set unblock failed,error:%d", errno);
-        return errno;
-    }
-*/    
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-
-    FD_SET(fd, &fdset);
-
-    while(1)
-    {
-        ready = select(1, &fdset, NULL, NULL, &timeout);
-        if (ready == -1)
-        {
-            printf("select,error:%d", errno);
-            return errno;
-        }else if (ready == 0){
-            printf("time out\n");
-            continue;
-        }else{
-            printf("ret:%d\n", ready);
-            if(FD_ISSET(fd, &fdset))
-                {printf("ready!\n");}
-            struct log_item item;
-            read_size = read(fd, &item, sizeof(item));
-            if (read_size == 0) continue;
-            printf("size:%d", read_size);
-            printf("pid:%d\n", item.pid);
-            printf("ppid:%d\n", item.ppid);
-        }
-    }
-
-    close(fd);
-
-    registry_out();
-}
-
-
-
-int main2()
+int main()
 {
     int fd;
     int ret;
@@ -178,6 +121,7 @@ int main2()
     while(1)
     {
         ready = poll(&poll_fd, 1, 5000);
+        printf("ready:%d\n", ready);
         if (ready == -1)
         {
             printf("select,error:%d", errno);
@@ -191,7 +135,7 @@ int main2()
             struct log_item item;
             read_size = read(fd, &item, sizeof(item));
             if (read_size == 0) continue;
-            printf("size:%d", read_size);
+            printf("size:%d\n", read_size);
             printf("pid:%d\n", item.pid);
             printf("ppid:%d\n", item.ppid);
         }
@@ -203,9 +147,5 @@ int main2()
     return 0;
 }
 
-int main()
-{
-    main2();
-}
 
 

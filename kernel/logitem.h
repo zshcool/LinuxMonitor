@@ -1,14 +1,17 @@
-#ifndef LOG_BLOCK_H_
-#define LOG_BLOCK_H_
+#ifndef LOG_ITEM_H_
+#define LOG_ITEM_H_
 
 #include <linux/slab.h>
 
 #define LOGSIZE 1024
+#define NAMESIZE 16
 
 struct log_item
 {
     int pid;
     int ppid;
+    char name[NAMESIZE];
+    char pname[NAMESIZE];
     char buf[LOGSIZE];
 };
 
