@@ -1,10 +1,12 @@
 #include "log_manage.h"
+#include <linux/mutex.h>
 
 static struct logblock *listhead;
 static struct logblock *curblock;
 static struct logblock *cursorblock;
 static int cursor = 0;
 static int total_block = 0;
+static DEFINE_MUTEX(locker);
 
 
 int has_new_log(void)
@@ -25,19 +27,23 @@ void init_log_list(void)
 
 
 void destroy_log_list(void)
-{
+{   mutex_lock(&locker);
     remove_block(listhead);
+    mutex_unlock(&locker);
 }
 
 
 struct log_item * get_log_item(void)
-{
+{    
     struct log_item *item;
+
+    mutex_lock(&locker);
     item = init_log_item();
     curblock->items[curblock->index] = item;
 
     //move cursor to next index
-    if (++(curblock->index) < MAX_ITEM)
+    curblock->index++;
+    if (curblock->index < MAX_ITEM)
     {
         ;
     }
@@ -49,18 +55,20 @@ struct log_item * get_log_item(void)
         {
             struct logblock *tmp;
             //if user visit is listhead, move it next
-            if(curblock == listhead)
+            if(cursorblock == listhead)
             {
-                curblock = listhead->next;
+                cursorblock = listhead->next;
                 cursor = 0;
             }
             tmp = listhead;
             listhead = listhead->next;
             
             destory_block(tmp);
+            total_block--;
         }
     }
 
+    mutex_unlock(&locker);
     return item;
 }
 
@@ -69,6 +77,8 @@ struct log_item * get_log_item(void)
 struct log_item * fetch_log(void)
 {
     struct log_item* item;
+
+    mutex_lock(&locker);
     if(has_new_log())
     {
         item = cursorblock->items[cursor];
@@ -88,5 +98,6 @@ struct log_item * fetch_log(void)
         item = NULL;
     }
 
+    mutex_unlock(&locker);
     return item;
 }

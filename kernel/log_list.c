@@ -1,7 +1,6 @@
 #include "log_list.h"
 
 
-
 struct logblock * init_log_block()
 {
     int i;
@@ -17,6 +16,7 @@ struct logblock * init_log_block()
     return block;
 }
 
+
 struct logblock * insert_new_log_block(struct logblock * cur_block)
 {
     struct logblock* block = init_log_block();
@@ -29,6 +29,8 @@ struct logblock * insert_new_log_block(struct logblock * cur_block)
 void destory_block(struct logblock * block)
 {
     int i;
+    if(block == NULL) return;
+
     for(i = 0; i < MAX_ITEM; i++)
     {
         if(block->items[i] != NULL)
@@ -36,8 +38,10 @@ void destory_block(struct logblock * block)
             release_log_item(block->items[i]);
         }
     }
+
     kfree(block);
 }
+
 
 void remove_block(struct logblock * block)
 {

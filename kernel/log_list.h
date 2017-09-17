@@ -3,7 +3,7 @@
 
 #include "datastruct.h"
 
-#define MAX_ITEM 30
+#define MAX_ITEM 50
 struct logblock
 {
     int index;

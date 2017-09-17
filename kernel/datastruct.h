@@ -20,6 +20,14 @@ struct log_item
     char buf[LOGSIZE];
 };
 
+struct execveinfo
+{
+    char objpath[MAX_FILE_PATH];
+    char command[512];
+};	
+
+
+
 struct addrinfo
 {
     int len;

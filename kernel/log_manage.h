@@ -4,7 +4,7 @@
 #include "datastruct.h"
 #include "log_list.h"
 
-#define MAX_BLOCK 50
+#define MAX_BLOCK 5
 
 //judge whether there are new logs to read, return 0 no,1 yes
 int has_new_log(void);
