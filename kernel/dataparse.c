@@ -8,24 +8,20 @@ void parse_execve(struct pt_regs *regs, char* buf, int len)
     char *path;
     char **argv;
     char **tmp;
+    struct execveinfo * info = (struct execveinfo *)buf;
 
     path = (char*)get_arg1(regs);
     argv = (char**)get_arg2(regs);
 
-    strcat(buf, "objpath");
-    strcat(buf, COLON);
-    strcat(buf, path);
-    strcat(buf, SPLIT);
-    strcat(buf, "command");
-    strcat(buf, COLON);
+    strcpy(info->objpath, path);
 
     tmp = argv;
-    strcat(buf, path);
+
     while(*tmp != NULL)
     {
         if(strlen(buf) + strlen(*tmp) < LOGSIZE)
-        strcat(buf, " ");
-        strcat(buf, *tmp);
+        strcat(info->command, *tmp);
+        strcat(info->command, " ");
         tmp++;
     }
 }

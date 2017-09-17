@@ -5,16 +5,16 @@
 #include "dataparse.h"
 
 #include <linux/string.h>
-#define PROBE_NUM 8
+#define PROBE_NUM 1
 static struct kprobe kps[PROBE_NUM];
 
 /*
 static char *probe_names[PROBE_NUM] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept",
 "sys_write", "sys_read",  "sys_creat", "sys_mkdir", "sys_rmdir", "sys_mkdirat",
-"sys_rename", "sys_chmod", "sys_fchmod", "sys_mount"};
+"sys_rename", "sys_chmod", "sys_fchmod", "sys_mount", "sys_unlink"};
 */
 
-static char *probe_names[PROBE_NUM] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept", "sys_rename", "sys_rmdir", "sys_unlink", "sys_creat"};
+static char *probe_names[PROBE_NUM] = {"sys_mkdir"};
 
 void mange_regs(const char *syscall, struct pt_regs *regs, char* buf, int len)
 {
