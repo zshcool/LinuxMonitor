@@ -5,11 +5,11 @@
 #include "dataparse.h"
 
 #include <linux/string.h>
-
-static struct kprobe kps[MAX_PROBES];
+#define PROBE_NUM 13
+static struct kprobe kps[PROBE_NUM];
 static int count = 0;
 
-static char *probe_names[13] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept",
+static char *probe_names[PROBE_NUM] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept",
 "sys_write", "sys_read",  "sys_creat", "sys_mkdir", "sys_mkdirat",
 "sys_rename", "sys_chmod", "sys_fchmod", "sys_mount"};
 
@@ -72,25 +72,19 @@ void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
 
 int init_kprobes(void)
 {
-    int i, probe_num, index;
+    int i;
     int ret = 0;
-    for(i = 0; i < MAX_PROBES; ++i)
+    for(i = 0; i < PROBE_NUM; ++i)
     {
         kps[i].symbol_name = NULL;
     }
 
-    probe_num = 14;//sizeof(probe_names);
+for(i = 0; i < PROBE_NUM; i++)
+{   
+    init_kprobe(&kps[i], probe_names[i], handle_post);
+}
 
-    if((probe_num > 0))
-    {
-        for(i = 0; i < probe_num; i++)
-        {   
-            init_kprobe(&kps[index], probe_names[i], handle_post);
-            index++;
-        }
-    }
-    
-    for(i = 0; i < MAX_PROBES; i++)
+    for(i = 0; i < PROBE_NUM; i++)
     {
         if(kps[i].symbol_name != NULL)
         {
