@@ -9,7 +9,65 @@
 static struct kprobe kps[MAX_PROBES];
 static int count = 0;
 
-static char *probe_names[] = {"sys_execve", "sys_connect"};
+static char *probe_names[13] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept",
+"sys_write", "sys_read",  "sys_creat", "sys_mkdir", "sys_mkdirat",
+"sys_rename", "sys_chmod", "sys_fchmod", "sys_mount"};
+
+void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
+{
+    if(strcmp(syscall, "sys_write") == 0)
+    {
+        parse_file_stream(regs, buf, len);
+    }else if(strcmp(syscall, "sys_read") == 0)
+    {
+        parse_file_stream(regs, buf, len);
+    }
+    else if (strcmp(syscall, "sys_execve") == 0)
+    {
+        parse_execve(regs, buf, len);
+    }
+    else if(strcmp(syscall, "sys_connect") == 0)
+    {
+        parse_sockaddr(regs, buf, len);
+    }else if(strcmp(syscall, "sys_bind") == 0)
+    {
+        parse_sockaddr(regs, buf, len);
+    }else if(strcmp(syscall, "sys_accept") == 0)
+    {
+        parse_sockaddr(regs, buf, len);
+    }else if(strcmp(syscall, "sys_creat") == 0)
+    {
+        parse_creat(regs, buf, len);
+    }else if(strcmp(syscall, "sys_mkdir") == 0)
+    {
+        parse_creat(regs, buf, len);
+    }else if(strcmp(syscall, "sys_mkdirat") == 0)
+    {
+        
+    }else if(strcmp(syscall, "sys_rename") == 0)
+    {
+        parse_rename(regs, buf, len);
+    }else if(strcmp(syscall, "sys_chmod") == 0)
+    {
+        parse_chmod(regs, buf, len);
+    }else if(strcmp(syscall, "sys_fchmod") == 0)
+    {
+        
+    }else if(strcmp(syscall, "sys_mount") == 0)
+    {
+        parse_mount(regs, buf, len);
+    }else if(strcmp(syscall, "sys_init_module") == 0)
+    {
+        parse_module(regs, buf, len);
+    }else if(strcmp(syscall, "sys_") == 0)
+    {
+        ;
+    }else
+    {
+        ;
+    }
+}
+
 
 
 int init_kprobes(void)
@@ -21,7 +79,7 @@ int init_kprobes(void)
         kps[i].symbol_name = NULL;
     }
 
-    probe_num = 2;//sizeof(probe_names);
+    probe_num = 14;//sizeof(probe_names);
 
     if((probe_num > 0))
     {
@@ -112,57 +170,4 @@ void init_kprobe(struct kprobe *p, char* name, posthandle handle)
 }
 
 
-void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
-{
-    if(strcmp(syscall, "sys_write") == 0)
-    {
-        parse_file_stream(regs, buf, len);
-    }else if(strcmp(syscall, "sys_read") == 0)
-    {
-        parse_file_stream(regs, buf, len);
-    }
-    else if (strcmp(syscall, "sys_execve") == 0)
-    {
-        parse_execve(regs, buf, len);
-    }
-    else if(strcmp(syscall, "sys_connect") == 0)
-    {
-        parse_sockaddr(regs, buf, len);
-    }else if(strcmp(syscall, "sys_bind") == 0)
-    {
-        parse_sockaddr(regs, buf, len);
-    }else if(strcmp(syscall, "sys_accept") == 0)
-    {
-        parse_sockaddr(regs, buf, len);
-    }else if(strcmp(syscall, "sys_creat") == 0)
-    {
-        parse_creat(regs, buf, len);
-    }else if(strcmp(syscall, "sys_mkdir") == 0)
-    {
-        parse_creat(regs, buf, len);
-    }else if(strcmp(syscall, "sys_mkdirat") == 0)
-    {
-        
-    }else if(strcmp(syscall, "sys_rename") == 0)
-    {
-        parse_rename(regs, buf, len);
-    }else if(strcmp(syscall, "sys_chmod") == 0)
-    {
-        parse_chmod(regs, buf, len);
-    }else if(strcmp(syscall, "sys_fchmod") == 0)
-    {
-        
-    }else if(strcmp(syscall, "sys_mount") == 0)
-    {
-        parse_mount(regs, buf, len);
-    }else if(strcmp(syscall, "sys_init_module") == 0)
-    {
-        parse_module(regs, buf, len);
-    }else if(strcmp(syscall, "sys_") == 0)
-    {
-        ;
-    }else
-    {
-        ;
-    }
-}
+
