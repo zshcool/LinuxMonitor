@@ -1,7 +1,7 @@
 #ifndef LOG_LIST_H_
 #define LOG_LIST_H_
 
-#include "logitem.h"
+#include "datastruct.h"
 
 #define MAX_ITEM 30
 struct logblock

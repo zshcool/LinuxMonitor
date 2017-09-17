@@ -4,7 +4,6 @@
 #include "manage_pt_regs.h"
 
 #include <linux/string.h>
-#include <linux/socket.h>
 
 static struct kprobe kps[MAX_PROBES];
 static int count = 0;
@@ -114,44 +113,55 @@ void init_kprobe(struct kprobe *p, char* name, posthandle handle)
 
 void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
 {
-    int left = len;
-
-    if (strcmp(syscall, "sys_execve") == 0)
+    if(strcmp(syscall, "sys_write") == 0)
     {
-        char *path;
-        char **argv;
-        char **tmp;
-
-        path = (char*)get_arg1(regs);
-        argv = (char**)get_arg2(regs);
-
-        strcat(buf, "objpath");
-        strcat(buf, COLON);
-        strcat(buf, path);
-        strcat(buf, SPLIT);
-        strcat(buf, "command");
-        strcat(buf, COLON);
-
-        tmp = argv;
-        strcat(buf, path);
-        while(*tmp != NULL)
-        {
-            if(strlen(buf) + strlen(*tmp) < LOGSIZE)
-            strcat(buf, " ");
-            strcat(buf, *tmp);
-            tmp++;
-        }
+        parse_file_stream(regs, buf, len);
+    }else if(strcmp(syscall, "sys_read") == 0)
+    {
+        parse_file_stream(regs, buf, len);
+    }
+    else if (strcmp(syscall, "sys_execve") == 0)
+    {
+        parse_execve(regs, buf, len);
     }
     else if(strcmp(syscall, "sys_connect") == 0)
     {
-        int fd = (int)get_arg1(regs);
-        int len = get_arg3(regs);
-        struct addrinfo * addr = (struct addrinfo *)buf;
-        printk("fd:%d\n", fd);
-        printk("len:%d\n", len);
-
-        addr->len = len;
-        addr->fd = fd;
-        memcpy(addr->data, (char*)get_arg2(regs), len);
+        parse_sockaddr(regs, buf, len);
+    }else if(strcmp(syscall, "sys_bind") == 0)
+    {
+        parse_sockaddr(regs, buf, len);
+    }else if(strcmp(syscall, "sys_accept") == 0)
+    {
+        parse_sockaddr(regs, buf, len);
+    }else if(strcmp(syscall, "sys_creat") == 0)
+    {
+        parse_creat(regs, buf, len);
+    }else if(strcmp(syscall, "sys_mkdir") == 0)
+    {
+        parse_creat(regs, buf, len);
+    }else if(strcmp(syscall, "sys_mkdirat") == 0)
+    {
+        
+    }else if(strcmp(syscall, "sys_rename") == 0)
+    {
+        parse_rename(regs, buf, len);
+    }else if(strcmp(syscall, "sys_chmod") == 0)
+    {
+        parse_chmod(regs, buf, len);
+    }else if(strcmp(syscall, "sys_fchmod") == 0)
+    {
+        
+    }else if(strcmp(syscall, "sys_mount") == 0)
+    {
+        parse_mount(regs, buf, len);
+    }else if(strcmp(syscall, "sys_init_module") == 0)
+    {
+        parse_module(regs, buf, len);
+    }else if(strcmp(syscall, "sys_") == 0)
+    {
+        ;
+    }else
+    {
+        ;
     }
 }

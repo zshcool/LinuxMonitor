@@ -1,6 +1,6 @@
 #include <linux/slab.h>
 
-#include "logitem.h"
+#include "datastruct.h"
 
 
 struct log_item* init_log_item(void)

@@ -1,7 +1,7 @@
 #ifndef LOG_MANAGE_H_
 #define LOG_MANAGE_H_
 
-#include "logitem.h"
+#include "datastruct.h"
 #include "log_list.h"
 
 #define MAX_BLOCK 50
