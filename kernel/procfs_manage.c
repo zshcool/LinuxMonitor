@@ -13,20 +13,20 @@ static int registry_pid = -1;
 
 static ssize_t read_log(struct file *f , char __user *buf, size_t len, loff_t *loff)
 {
-    ssize_t size = sizeof(struct log_item);
     int ret;
+    struct log_item* item;
+    ssize_t size = sizeof(struct log_item);
 
     if(len != size) 
         return -EINVAL;
 
-    struct log_item* item = fetch_log();
+    item = fetch_log();
 
     if(item == NULL)
     {
         size = 0;
     }else{
         //log
-        struct log_item* logbuf = (struct log_item*)buf;
         ret = copy_to_user(buf, item, size);
         size -= ret;
     }

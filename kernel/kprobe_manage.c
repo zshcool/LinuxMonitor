@@ -5,15 +5,18 @@
 #include "dataparse.h"
 
 #include <linux/string.h>
-#define PROBE_NUM 13
+#define PROBE_NUM 8
 static struct kprobe kps[PROBE_NUM];
-static int count = 0;
 
+/*
 static char *probe_names[PROBE_NUM] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept",
-"sys_write", "sys_read",  "sys_creat", "sys_mkdir", "sys_mkdirat",
+"sys_write", "sys_read",  "sys_creat", "sys_mkdir", "sys_rmdir", "sys_mkdirat",
 "sys_rename", "sys_chmod", "sys_fchmod", "sys_mount"};
+*/
 
-void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
+static char *probe_names[PROBE_NUM] = {"sys_execve", "sys_connect", "sys_bind", "sys_accept", "sys_rename", "sys_rmdir", "sys_unlink", "sys_creat"};
+
+void mange_regs(const char *syscall, struct pt_regs *regs, char* buf, int len)
 {
     if(strcmp(syscall, "sys_write") == 0)
     {
@@ -34,7 +37,7 @@ void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
         parse_sockaddr(regs, buf, len);
     }else if(strcmp(syscall, "sys_accept") == 0)
     {
-        parse_sockaddr(regs, buf, len);
+        parse_accept(regs, buf, len);
     }else if(strcmp(syscall, "sys_creat") == 0)
     {
         parse_creat(regs, buf, len);
@@ -59,6 +62,12 @@ void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
     }else if(strcmp(syscall, "sys_init_module") == 0)
     {
         parse_module(regs, buf, len);
+    }else if(strcmp(syscall, "sys_unlink") == 0)
+    {
+        parse_rm(regs, buf, len);
+    }else if(strcmp(syscall, "sys_rmdir") == 0)
+    {
+        parse_rm(regs, buf, len);
     }else if(strcmp(syscall, "sys_") == 0)
     {
         ;
@@ -111,7 +120,7 @@ end:
 void destroy_kprobes(void)
 {
     int i;
-    for(i = 0; i < MAX_PROBES; i++)
+    for(i = 0; i < PROBE_NUM; i++)
     {
         if(kps[i].symbol_name != NULL)
         {
@@ -145,6 +154,7 @@ void handle_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags)
     strcpy(item->name, current->comm);
     strcpy(item->pname, current->parent->comm);
     mange_regs(p->symbol_name, regs, item->buf, LOGSIZE);
+    printk("%s\n", item->syscall);
 
 }
 

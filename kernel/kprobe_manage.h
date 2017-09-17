@@ -19,6 +19,6 @@ void handle_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags);
 
 void init_kprobe(struct kprobe *p, char* name, posthandle handle);
 
-void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len);
+void mange_regs(const char *syscall, struct pt_regs *regs, char* buf, int len);
 
 #endif
