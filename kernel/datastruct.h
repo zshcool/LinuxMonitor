@@ -31,37 +31,37 @@ struct file_stream
 {
     int fd;
     size_t size;
-}
+};
 
 struct file_open
 {
     int fd;
     mode_t  mode;
-    char* filename[MAX_FILE_PATH];
-}
+    char filename[MAX_FILE_PATH];
+};
 
 struct file_create_chmod
 {
     mode_t  mode;
-    char *pathname[MAX_FILE_PATH];
-}
+    char pathname[MAX_FILE_PATH];
+};
 
 struct file_rename
 {
-    char *oldname[MAX_FILE_PATH];
-    char *newname[MAX_FILE_PATH];
-}
+    char oldname[MAX_FILE_PATH];
+    char newname[MAX_FILE_PATH];
+};
 
 struct file_mount
 {
-    char *devname[MAX_FILE_PATH];
-    char *filename[MAX_FILE_PATH];
-}
+    char devname[MAX_FILE_PATH];
+    char filename[MAX_FILE_PATH];
+};
 
 struct file_module
 {
-    char *uargs[MAX_FILE_PATH];    
-}
+    char uargs[MAX_FILE_PATH];    
+};
 
 struct log_item* init_log_item(void);
 void release_log_item(struct log_item* log_item);

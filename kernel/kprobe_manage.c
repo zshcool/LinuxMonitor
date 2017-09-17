@@ -2,6 +2,7 @@
 #include "log_manage.h"
 #include "procfs_manage.h"
 #include "manage_pt_regs.h"
+#include "dataparse.h"
 
 #include <linux/string.h>
 

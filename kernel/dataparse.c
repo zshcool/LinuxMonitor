@@ -1,4 +1,6 @@
 #include "datastruct.h"
+#include "manage_pt_regs.h"
+#include <linux/string.h>
 
 
 void parse_execve(struct pt_regs *regs, char* buf, int len)
@@ -31,12 +33,12 @@ void parse_execve(struct pt_regs *regs, char* buf, int len)
 void parse_sockaddr(struct pt_regs *regs, char* buf, int len)
 {
     int fd = (int)get_arg1(regs);
-    int len = get_arg3(regs);
+    int data_len = get_arg3(regs);
     struct addrinfo * addr = (struct addrinfo *)buf;
 
-    addr->len = len;
+    addr->len = data_len;
     addr->fd = fd;
-    memcpy(addr->data, (char*)get_arg2(regs), len);
+    memcpy(addr->data, (char*)get_arg2(regs), data_len);
 }
 
 void parse_file_stream(struct pt_regs *regs, char* buf, int len)
@@ -67,7 +69,7 @@ void parse_chmod(struct pt_regs *regs, char* buf, int len)
 {
     struct file_create_chmod * file = (struct file_create_chmod *)buf;
     strcpy(file->pathname, (char*)get_arg1(regs));
-    strcpy(file->mode, (mode_t)get_arg2(regs));
+    file->mode = (mode_t)get_arg2(regs);
 }
 
 

@@ -3,8 +3,7 @@
 
 #include <linux/string.h>
 #include "common.h"
-#include "datastrcut.h"
-
+#include "datastruct.h"
 
 void parse_execve(struct pt_regs *regs, char* buf, int len);
 void parse_sockaddr(struct pt_regs *regs, char* buf, int len);
