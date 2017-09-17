@@ -3,32 +3,32 @@
 #include "procfs_manage.h"
 #include "manage_pt_regs.h"
 
-#include <linux/string.h>
-#include <linux/socket.h>
-
 static struct kprobe kps[MAX_PROBES];
 static int count = 0;
 
-static char *probe_names[] = {"sys_execve", "sys_connect"};
+static char *probe_names[] = {"sys_execve"};
 
 
 int init_kprobes(void)
 {
-    int i, probe_num, index;
+    int i, probe_num;
     int ret = 0;
     for(i = 0; i < MAX_PROBES; ++i)
     {
         kps[i].symbol_name = NULL;
     }
 
-    probe_num = 2;//sizeof(probe_names);
+    //probe_names is an array
+    probe_num = 1;//sizeof(probe_names);
+    printk("default probe_num:%d\n", probe_num);
 
     if((probe_num > 0))
     {
         for(i = 0; i < probe_num; i++)
         {   
-            init_kprobe(&kps[index], probe_names[i], handle_post);
-            index++;
+            //kps[count] = (struct kprobe*)kmalloc(sizeof(struct kprobe), GFP_KERNEL);
+            init_kprobe(&kps[count], probe_names[i], handle_post);
+            count++;
         }
     }
     
@@ -36,13 +36,13 @@ int init_kprobes(void)
     {
         if(kps[i].symbol_name != NULL)
         {
+            printk("resgistry:%s", kps[i].symbol_name);
             ret = register_kprobe(&kps[i]);
             if(ret < 0)
             {
                 printk("register failed, errno:%d\n", ret);
                 goto end;
             }
-            printk("resgistry:%s success!\n", kps[i].symbol_name);
         }
     }
    
@@ -64,13 +64,20 @@ void destroy_kprobes(void)
         if(kps[i].symbol_name != NULL)
         {
             unregister_kprobe(&kps[i]);
+            //kfree(&kps[i]);
         }
     }
 }
 
 
+
+
+
 int handle_pre(struct kprobe *p, struct pt_regs *regs)
 {
+
+    //printk(MODULE_NAME "pid:%d,ppid:%d,name:%s", current->pid, current->parent->pid, current->comm);
+
     return 0;
 }
 
@@ -89,13 +96,56 @@ void handle_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags)
     
     item->pid = current->pid;
     item->ppid = current->parent->pid;
-    strcpy(item->syscall, p->symbol_name);
-    strcpy(item->name, current->comm);
-    strcpy(item->pname, current->parent->comm);
-    mange_regs(p->symbol_name, regs, item->buf, LOGSIZE);
 
+    char **argv = (char**)get_arg2(regs);
+    int argc = 0;
+    char **tmp = argv;
+    while(*tmp != NULL)
+    {
+        printk("%d:%s", argc, *tmp);
+        tmp++;
+        argc++;
+    }
+    printk("%s\n", get_arg1(regs));
+    printk("exe:%s, argc:%d!\n", *((char**)get_arg2(regs)+1), argc);
+
+
+    printk("func:%s", p->symbol_name);
 }
 
+
+/*
+void handle_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags)
+{
+    struct log_item *item;    
+
+    if(current->pid == registry_pid)
+    {
+        printk("monitor process filter!\n");
+        return;
+    }
+
+    item = 1//d
+    
+    item->pid = current->pid;
+    item->ppid = current->parent->pid;
+    char **argv = (char**)get_arg2(regs);
+    int count = 0;
+    char **tmp = argv;
+    while(*tmp != NULL)
+    {
+        printk("%d:%s", count, *tmp);
+        tmp++;
+        count++;
+    }
+    printk("%s\n", get_arg1(regs));
+    printk("exe:%s, argc:%d!\n", *((char**)get_arg2(regs)+1), count);
+
+
+    printk("func:%s", p->symbol_name);
+    printk(MODULE_NAME "log");
+}
+*/
 
 int handle_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
 {
@@ -105,53 +155,9 @@ int handle_fault(struct kprobe *p, struct pt_regs *regs, int trapnr)
 
 void init_kprobe(struct kprobe *p, char* name, posthandle handle)
 {
-    p->symbol_name = name;
+    printk("name:%s", name);
+    p->symbol_name = "sys_execve";
     p->pre_handler = handle_pre;
     p->post_handler = handle;
     p->fault_handler = handle_fault;
-}
-
-
-void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len)
-{
-    int left = len;
-
-    if (strcmp(syscall, "sys_execve") == 0)
-    {
-        char *path;
-        char **argv;
-        char **tmp;
-
-        path = (char*)get_arg1(regs);
-        argv = (char**)get_arg2(regs);
-
-        strcat(buf, "objpath");
-        strcat(buf, COLON);
-        strcat(buf, path);
-        strcat(buf, SPLIT);
-        strcat(buf, "command");
-        strcat(buf, COLON);
-
-        tmp = argv;
-        strcat(buf, path);
-        while(*tmp != NULL)
-        {
-            if(strlen(buf) + strlen(*tmp) < LOGSIZE)
-            strcat(buf, " ");
-            strcat(buf, *tmp);
-            tmp++;
-        }
-    }
-    else if(strcmp(syscall, "sys_connect") == 0)
-    {
-        int fd = (int)get_arg1(regs);
-        int len = get_arg3(regs);
-        struct addrinfo * addr = (struct addrinfo *)buf;
-        printk("fd:%d\n", fd);
-        printk("len:%d\n", len);
-
-        addr->len = len;
-        addr->fd = fd;
-        memcpy(addr->data, (char*)get_arg2(regs), len);
-    }
 }

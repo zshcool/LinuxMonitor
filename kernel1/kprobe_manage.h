@@ -12,13 +12,10 @@ int init_kprobes(void);
 void destroy_kprobes(void);
 
 int handle_pre(struct kprobe *p, struct pt_regs *regs);
-
 int handle_fault(struct kprobe *p, struct pt_regs *regs, int trapnr);
 
 void handle_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags);
 
 void init_kprobe(struct kprobe *p, char* name, posthandle handle);
-
-void mange_regs(char *syscall, struct pt_regs *regs, char* buf, int len);
 
 #endif

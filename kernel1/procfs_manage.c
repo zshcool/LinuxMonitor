@@ -15,6 +15,10 @@ static ssize_t read_log(struct file *f , char __user *buf, size_t len, loff_t *l
 {
     ssize_t size = sizeof(struct log_item);
     int ret;
+    
+    printk("size:%d", size);
+    printk("len:%d", len);
+        
 
     if(len != size) 
         return -EINVAL;
@@ -38,9 +42,11 @@ static ssize_t read_log(struct file *f , char __user *buf, size_t len, loff_t *l
 static unsigned int log_poll(struct file *file, struct poll_table_struct *table)
 {
     unsigned int mask = 0;
+    printk("8888");
     poll_wait(file, &log_queue, table);
     if(has_new_log())
     {
+        printk("new");
         mask |= POLLIN | POLLRDNORM;
     }
 

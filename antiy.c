@@ -2,35 +2,40 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 #include <sys/types.h>
 //#include <sys/select.h>
 #include <sys/time.h>
 #include <poll.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <arpa/inet.h>
+
 #define LOGSIZE 1024
 #define NAMESIZE 16
+#define COLON "&:"
+#define SPLIT "&/"
 
 struct log_item
 {
     int pid;
     int ppid;
+    char syscall[NAMESIZE];
     char name[NAMESIZE];
     char pname[NAMESIZE];
     char buf[LOGSIZE];
 };
 
-int unblockfd(int fd)
+struct addrinfo
 {
-    int flag;
-    flag = fcntl(fd, F_GETFL, 0);
-    if(flag == -1) return -1;
-    flag |= O_NONBLOCK;
-    fcntl(fd, F_SETFL, flag);
-    if(flag == -1) return -1;
+    int len;
+    int fd;
+    char data[256];
+};
 
-    return 0;
-}
 
 
 int check_registry()
@@ -135,9 +140,27 @@ int main()
             struct log_item item;
             read_size = read(fd, &item, sizeof(item));
             if (read_size == 0) continue;
-            printf("size:%d\n", read_size);
+
             printf("pid:%d\n", item.pid);
             printf("ppid:%d\n", item.ppid);
+            printf("name:%s\n", item.name);
+            printf("pname:%s\n", item.pname);
+            printf("syscall:%s\n", item.syscall);
+            if(strcmp(item.syscall, "sys_execve") == 0)
+            {
+                printf("buf:%s\n", item.buf);
+            }
+            else if(strcmp(item.syscall, "sys_connect") == 0)
+            {
+                struct addrinfo *info = (struct addrinfo *)(item.buf);
+                if (info->len == 16)
+                {
+                    struct sockaddr_in* addr = (struct sockaddr_in*)(info
+->data);
+                    printf("ip:%s, port:%u", inet_ntoa(addr->sin_addr), ntohs(addr->sin_port));
+                    
+                }
+            }
         }
     }
 

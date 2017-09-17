@@ -10,7 +10,10 @@ static int total_block = 0;
 int has_new_log(void)
 {
     if(cursor < cursorblock->index)
+    {
+        printk("cursor:%d, index:%d", cursor, cursorblock->index);
         return 1;
+    }
     else
         return 0;
 }
@@ -51,8 +54,11 @@ struct log_item * get_log_item(void)
             //if user visit is listhead, move it next
             if(curblock == listhead)
             {
-                curblock = listhead->next;
-                cursor = 0;
+                if(curblock == listhead)
+                {
+                    curblock = listhead->next;
+                    cursor = 0;
+                }
             }
             tmp = listhead;
             listhead = listhead->next;
@@ -74,7 +80,9 @@ struct log_item * fetch_log(void)
         item = cursorblock->items[cursor];
 
         //move the cursor to next log item
+        printk("cursor:%d++", cursor);
         cursor++;
+        printk("cursor:%d", cursor);
 
         //has finshed to get the block's logs
         if(cursor >= MAX_ITEM)
