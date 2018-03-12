@@ -10,6 +10,7 @@ int registry_proc_fs(void);
 void registry_fs_out(void);
 
 int is_monitor(int pid);
-
+int notstart(void);
+int isfilted(char *name);
 
 #endif

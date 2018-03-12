@@ -1,6 +1,6 @@
 #include "manage_pt_regs.h"
 
-long get_arg1(struct pt_regs *regs)
+long unsigned int get_arg1(struct pt_regs *regs)
 {
 #if defined(__x86_64__)
     return regs->di;
@@ -11,7 +11,7 @@ long get_arg1(struct pt_regs *regs)
 #endif
 }
 
-long get_arg2(struct pt_regs *regs)
+long unsigned int get_arg2(struct pt_regs *regs)
 {
 #if defined(__x86_64__)
     return regs->si;
@@ -22,7 +22,7 @@ long get_arg2(struct pt_regs *regs)
 #endif
 }
 
-long get_arg3(struct pt_regs *regs)
+long unsigned int get_arg3(struct pt_regs *regs)
 {
 #if defined(__x86_64__)
     return regs->dx;
@@ -33,7 +33,7 @@ long get_arg3(struct pt_regs *regs)
 #endif
 }
 
-long get_arg4(struct pt_regs *regs)
+long unsigned int get_arg4(struct pt_regs *regs)
 {
 #if defined(__x86_64__)
     return regs->r10;
@@ -44,7 +44,7 @@ long get_arg4(struct pt_regs *regs)
 #endif 
 }
 
-long get_arg5(struct pt_regs *regs)
+long unsigned int get_arg5(struct pt_regs *regs)
 {
 #if defined(__x86_64__)
     return regs->r8;

@@ -2,23 +2,20 @@
 #define LOG_ITEM_H_
 
 #include <linux/slab.h>
+#include "common.h"
 
-#define LOGSIZE 1024
-#define NAMESIZE 16
-#define MAX_FILE_PATH 256
-#define ADDR_LEN 256
-#define COLON "&:"
-#define SPLIT "&/"
 
 struct log_item
 {
     int pid;
     int ppid;
     char syscall[NAMESIZE];
+    char path[MAX_FILE_PATH];
     char name[NAMESIZE];
     char pname[NAMESIZE];
     char buf[LOGSIZE];
 };
+
 
 struct execveinfo
 {
@@ -27,13 +24,13 @@ struct execveinfo
 };	
 
 
-
 struct addrinfo
 {
     int len;
     int fd;
     char data[ADDR_LEN];
 };	
+
 
 struct file_stream
 {
@@ -71,8 +68,13 @@ struct file_module
     char uargs[MAX_FILE_PATH];    
 };
 
-struct log_item* init_log_item(void);
-void release_log_item(struct log_item* log_item);
+
+struct file_create_chmod_at
+{
+    mode_t  mode;
+    int fd;
+    char pathname[MAX_FILE_PATH];
+};
 
 
 #endif

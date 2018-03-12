@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define MAX_PROBES 20
+
 
 typedef void(*posthandle)(struct kprobe*, struct pt_regs*, unsigned long);
 
@@ -17,7 +17,7 @@ int handle_fault(struct kprobe *p, struct pt_regs *regs, int trapnr);
 
 void handle_post(struct kprobe *p, struct pt_regs *regs, unsigned long flags);
 
-void init_kprobe(struct kprobe *p, char* name, posthandle handle);
+void init_kprobe(struct kprobe *p, char* name);
 
 void mange_regs(const char *syscall, struct pt_regs *regs, char* buf, int len);
 

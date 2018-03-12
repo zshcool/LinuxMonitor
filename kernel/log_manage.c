@@ -4,67 +4,75 @@
 static struct logblock *listhead;
 static struct logblock *curblock;
 static struct logblock *cursorblock;
-static int cursor = 0;
-static int total_block = 0;
+static int cursorindex = 0;
 static DEFINE_MUTEX(locker);
 
 
 int has_new_log(void)
 {
-    if(cursor < cursorblock->index)
+    if(cursorindex < cursorblock->index)
         return 1;
     else
         return 0;
 }
 
 
-void init_log_list(void)
+struct logblock *get_next_log(struct logblock * block)
 {
-    listhead = init_log_block();
+     if(block->next == NULL)
+         return listhead;
+     else
+         return block->next;
+}
+
+
+struct logblock * init_log_list(void)
+{
+    listhead = init_log_block_list(MAX_BLOCK);
+
+    if (listhead == NULL)
+        return NULL;
+
     curblock = listhead;
     cursorblock = listhead;
+
+    return listhead;
 }
 
 
 void destroy_log_list(void)
 {   mutex_lock(&locker);
-    remove_block(listhead);
+    remove_block_list(listhead);
     mutex_unlock(&locker);
 }
 
 
 struct log_item * get_log_item(void)
-{    
+{
     struct log_item *item;
 
-    mutex_lock(&locker);
-    item = init_log_item();
-    curblock->items[curblock->index] = item;
+    mutex_lock(&locker);    
+    item = &curblock->items[curblock->index];
+    initiate_log_item(item);
 
     //move cursor to next index
-    if (++(curblock->index) < MAX_ITEM)
+    curblock->index++;
+    if (curblock->index < MAX_ITEM)
     {
         ;
     }
     else{
-        curblock = insert_new_log_block(curblock);
-        total_block++;
+        curblock = get_next_log(curblock);
+        curblock->index = 0;
 
-        if(total_block > MAX_BLOCK)
+        if(curblock->blockid == cursorblock->blockid)
         {
-            struct logblock *tmp;
-            //if user visit is listhead, move it next
-            if(curblock == listhead)
-            {
-                curblock = listhead->next;
-                cursor = 0;
-            }
-            tmp = listhead;
-            listhead = listhead->next;
-            
-            destory_block(tmp);
-            total_block--;
+            //if current log block reaches the  read cursor,
+            //move the read-cursor to next;
+            cursorblock = get_next_log(cursorblock);
+            cursorindex = 0;
         }
+
     }
 
     mutex_unlock(&locker);
@@ -80,16 +88,16 @@ struct log_item * fetch_log(void)
     mutex_lock(&locker);
     if(has_new_log())
     {
-        item = cursorblock->items[cursor];
+        item = &cursorblock->items[cursorindex];
 
         //move the cursor to next log item
-        cursor++;
+        cursorindex++;
 
         //has finshed to get the block's logs
-        if(cursor >= MAX_ITEM)
+        if(cursorindex == MAX_ITEM)
         {
-            cursorblock = cursorblock->next;
-            cursor = 0;
+            cursorblock = get_next_log(cursorblock);
+            cursorindex = 0;
         }
 
     }else{

@@ -15,6 +15,7 @@ void parse_chmod(struct pt_regs *regs, char* buf, int len);
 void parse_mount(struct pt_regs *regs, char* buf, int len);
 void parse_module(struct pt_regs *regs, char* buf, int len);
 void parse_rm(struct pt_regs *regs, char* buf, int len);
-
+void parse_linkat(struct pt_regs *regs, char* buf, int len);
+void parse_creatat(struct pt_regs *regs, char* buf, int len);
 
 #endif

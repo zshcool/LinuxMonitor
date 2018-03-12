@@ -22,14 +22,30 @@ reference sysmon
 #include "procfs_manage.h"
 #include "kprobe_manage.h"
 
-
+//static struct logblock *listhead;
 
 static int __init init_mod(void)
 {   
-    int ret;
-
+    int ret = 0;
+    struct logblock *listhead;
     printk("Hello, from the kernell..\n");
-    init_log_list();
+    /*
+    listhead = (struct logblock *)vmalloc(sizeof(struct logblock));
+    listhead->blockid = 0;
+    listhead->index = 0;
+    listhead->next = NULL;
+    
+    for(i = 0; i < MAX_ITEM; i++)
+    {
+        initiate_log_item(&listhead->items[i]);
+    }*/
+
+    listhead = init_log_list();
+    if(listhead == NULL)
+    {
+        printk("malloc memory failed!\n");
+        return -1;
+    }
 
     ret = init_kprobes();
     if (ret != 0)
@@ -51,6 +67,7 @@ static int __init init_mod(void)
 
 static void __exit cleanup_mod(void)
 {
+    //vfree(listhead);
     destroy_kprobes();
     registry_fs_out();
     destroy_log_list();

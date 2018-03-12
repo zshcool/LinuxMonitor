@@ -6,20 +6,20 @@
 #define MAX_ITEM 30
 struct logblock
 {
+    int blockid;
     int index;
     struct logblock *next;
-    struct log_item *items[MAX_ITEM];
+    struct log_item items[MAX_ITEM];
 };
 
 
 
-//Initialize list head
-struct logblock * init_log_block(void);
-//insert node and return new node
-struct logblock * insert_new_log_block(struct logblock * cur_block);
-//free block
-void destory_block(struct logblock * block);
+//Initialize list && return head
+struct logblock * init_log_block_list(int num);
+
 //free all the memory of the list behind the block
-void remove_block(struct logblock * block);
+void remove_block_list(struct logblock * block);
+
+void initiate_log_item(struct log_item* item);
 
 #endif
