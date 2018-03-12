@@ -1,5 +1,4 @@
 /*
-antiy honeypot project
 linux kernel module
 syscall hook
 auth by zsh
@@ -29,16 +28,6 @@ static int __init init_mod(void)
     int ret = 0;
     struct logblock *listhead;
     printk("Hello, from the kernell..\n");
-    /*
-    listhead = (struct logblock *)vmalloc(sizeof(struct logblock));
-    listhead->blockid = 0;
-    listhead->index = 0;
-    listhead->next = NULL;
-    
-    for(i = 0; i < MAX_ITEM; i++)
-    {
-        initiate_log_item(&listhead->items[i]);
-    }*/
 
     listhead = init_log_list();
     if(listhead == NULL)
@@ -67,7 +56,6 @@ static int __init init_mod(void)
 
 static void __exit cleanup_mod(void)
 {
-    //vfree(listhead);
     destroy_kprobes();
     registry_fs_out();
     destroy_log_list();
