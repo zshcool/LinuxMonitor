@@ -1,1 +1,0 @@
-cmd_/home/kernel/antiylm.ko.unsigned := ld -r -m elf_x86_64 -T /usr/src/kernels/2.6.32-696.16.1.el6.x86_64/scripts/module-common.lds --build-id -o /home/kernel/antiylm.ko.unsigned /home/kernel/antiylm.o /home/kernel/antiylm.mod.o 
